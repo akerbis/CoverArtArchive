@@ -18,8 +18,9 @@
         "guzzle/guzzle": "~3.4"
     },
     "autoload": {
-        "psr-0": {
-            "CoverArtArchive": "src/"
+        "psr-4": {
+            "CoverArtArchive\\": "src/",
+            "CoverArtArchive\\Tests\\": "tests/"
         }
     },
     "extra": {
