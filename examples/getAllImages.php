@@ -1,7 +1,7 @@
 <?php
 
 use CoverArtArchive\CoverArt;
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 

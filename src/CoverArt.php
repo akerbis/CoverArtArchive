@@ -8,7 +8,7 @@
 
 namespace CoverArtArchive;
 
-use Guzzle\Http\ClientInterface;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Connect to the Cover Art Archive web service
@@ -53,7 +53,7 @@ class CoverArt
      *
      *
      * @param                              $mbid
-     * @param \Guzzle\Http\ClientInterface $client
+     * @param \GuzzleHttp\ClientInterface $client
      *
      * @return \CoverArtArchive\CoverArt
      */
@@ -124,12 +124,16 @@ class CoverArt
      */
     private function call($path)
     {
-        $this->client->setBaseUrl(self::URL);
+        $response = $this->client->get(self::URL.$path, array(
+            'headers' => array(
+                'Accept: application/json'
+            )
+        ));
+        if ($response->getStatusCode() != 200) {
+            throw \Exception("Bad response from server");
+        }
 
-        $request = $this->client->get($path);
-        $request->setHeader('Accept', 'application/json');
-
-        return $request->send()->json();
+        return json_decode((string)$response->getBody(), true);
     }
 
     /**
