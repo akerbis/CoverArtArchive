@@ -1,15 +1,20 @@
 {
-    "name": "mikealmond/coverartarchive",
+    "name": "dehy/coverartarchive",
     "type": "library",
     "description": "A PHP library for accessing the CoverArtArchive API",
     "keywords": ["coverart", "musicbrainz", "library", "php", "api"],
-    "homepage": "https://github.com/mikealmond/CoverArtArchive",
+    "homepage": "https://github.com/dehy/CoverArtArchive",
     "license": "MIT",
     "authors": [
         {
             "name": "Mike Almond",
             "email": "mike@almsy.com",
             "homepage": "http://mikealmond.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Arnaud de Mouhy",
+            "email": "arnaud@admds.net",
             "role": "Developer"
         }
     ],
