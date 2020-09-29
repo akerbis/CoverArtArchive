@@ -7,7 +7,7 @@ use CoverArtArchive\CoverArt;
 /**
  * @covers CoverArtArchive\CoverArt
  */
-class CoverArtTest extends \PHPUnit_Framework_TestCase
+class CoverArtTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return array
