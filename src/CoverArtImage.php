@@ -8,6 +8,8 @@
 
 namespace CoverArtArchive;
 
+use InvalidArgumentException;
+
 /**
  * Represents a cover object.
  */
@@ -61,13 +63,13 @@ class CoverArtImage
      *
      * @param  string $size The requested thumbnail size
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return string
      */
     public function getThumbnail($size = 'small')
     {
         if (!in_array($size, array('small', 'large'))) {
-            throw new \InvalidArgumentException('You must enter either small or large in the getThumbnail() method');
+            throw new InvalidArgumentException('You must enter either small or large in the getThumbnail() method');
         }
 
         return $this->image['thumbnails'][$size];

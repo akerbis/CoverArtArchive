@@ -3,11 +3,12 @@
 namespace CoverArtArchive\Tests;
 
 use CoverArtArchive\CoverArt;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers CoverArtArchive\CoverArt
  */
-class CoverArtTest extends \PHPUnit\Framework\TestCase
+class CoverArtTest extends TestCase
 {
     /**
      * @return array
@@ -24,8 +25,10 @@ class CoverArtTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider MBIDProvider
+     * @param string $validation
+     * @param string $mbid
      */
-    public function testIsValidMBID($validation, $mbid)
+    public function testIsValidMBID(bool $validation, string $mbid)
     {
         $this->assertEquals($validation, CoverArt::isValidMBID($mbid));
     }

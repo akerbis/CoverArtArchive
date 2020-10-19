@@ -8,42 +8,50 @@
 
 namespace CoverArtArchive;
 
+use Exception;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use InvalidArgumentException;
 
 /**
  * Connect to the Cover Art Archive web service
  *
- * http://musicbrainz.org/doc/Cover_Art_Archive/API
+ * https://musicbrainz.org/doc/Cover_Art_Archive/API
  *
- * @link http://github.com/mikealmond/CoverArtArchive
+ * @link https://github.com/dehy/CoverArtArchive
  */
 class CoverArt
 {
+    private const URL = 'https://coverartarchive.org';
 
-    const URL = 'http://coverartarchive.org';
     /**
      * Stores an array of CoverArtImage objects
-     * @var $images array of {@link \CoverArtArchive\CoverArtImage} objects
+     * @var CoverArtImage[]
      */
-    public $images = array();
+    public $images = [];
+
     /**
      * The CoverArtImage object for the front image
-     * @var $front \CoverArtArchive\CoverArtImage
+     * @var CoverArtImage
      */
     public $front;
+
     /**
      * The CoverArtImage object for the back image
-     * @var $back \CoverArtArchive\CoverArtImage
+     * @var CoverArtImage
      */
     public $back;
+
     /**
      * The Music Brainz Id of the album
+     * @var string
      */
     private $mbid;
+
     /**
      * The Guzzle client used to make cURL requests
      *
-     * @var \Guzzle\Http\ClientInterface
+     * @var ClientInterface
      */
     private $client;
 
@@ -51,13 +59,11 @@ class CoverArt
      * Retrieves an array of images based on a
      * Music Brainz ID
      *
-     *
-     * @param                              $mbid
-     * @param \GuzzleHttp\ClientInterface $client
-     *
-     * @return \CoverArtArchive\CoverArt
+     * @param string $mbid
+     * @param ClientInterface $client
+     * @throws Exception|GuzzleException
      */
-    public function __construct($mbid, ClientInterface $client)
+    public function __construct(string $mbid, ClientInterface $client)
     {
         $this->client = $client;
 
@@ -67,11 +73,13 @@ class CoverArt
 
     /**
      * Sets the MusicBrainzID
+     *
+     * @param string $mbid
      */
-    public function setMBID($mbid)
+    public function setMBID(string $mbid): void
     {
         if (!self::isValidMBID($mbid)) {
-            throw new \InvalidArgumentException('Invalid Music Brainz ID');
+            throw new InvalidArgumentException('Invalid Music Brainz ID');
         }
 
         $this->mbid = $mbid;
@@ -84,18 +92,20 @@ class CoverArt
      *
      * @return bool
      */
-    public static function isValidMBID($mbid)
+    public static function isValidMBID(string $mbid): bool
     {
-        return preg_match("/^(\{)?[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}(?(1)\})$/i", $mbid);
+        return preg_match("/^({)?[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}(?(1)})$/i", $mbid);
     }
 
     /**
      * Retrieves an array of images based on a
      * Music Brainz ID
      *
-     * @return \CoverArtArchive\CoverArt
+     * @return CoverArt
+     * @throws Exception
+     * @throws GuzzleException
      */
-    public function retrieveImages()
+    public function retrieveImages(): CoverArt
     {
         $response = $this->call('/release/' . $this->getMBID());
 
@@ -118,30 +128,32 @@ class CoverArt
     /**
      * Perform a cURL request based on a supplied path
      *
-     * @param  string $path
+     * @param string $path
      *
      * @return array
+     * @throws GuzzleException
+     * @throws Exception
      */
-    private function call($path)
+    private function call(string $path): array
     {
-        $response = $this->client->get(self::URL.$path, array(
+        $response = $this->client->request('GET', self::URL.$path, array(
             'headers' => array(
                 'Accept: application/json'
             )
         ));
         if ($response->getStatusCode() != 200) {
-            throw \Exception("Bad response from server");
+            throw new Exception("Bad response from server");
         }
 
         return json_decode((string)$response->getBody(), true);
     }
 
     /**
-     * Returns an array of images
+     * Returns the MBID
      *
-     * @return array
+     * @return string
      */
-    public function getMBID()
+    public function getMBID(): string
     {
         return $this->mbid;
     }
@@ -149,9 +161,9 @@ class CoverArt
     /**
      * Returns an array of images
      *
-     * @return array
+     * @return CoverArtImage[]
      */
-    public function getImages()
+    public function getImages(): array
     {
         return $this->images;
     }
@@ -159,10 +171,10 @@ class CoverArt
     /**
      * Returns the front image
      *
-     * @throws \CoverArtArchive\Exception
-     * @return \CoverArtArchive\CoverArtImage
+     * @return CoverArtImage
+     * @throws Exception
      */
-    public function getFrontImage()
+    public function getFrontImage(): CoverArtImage
     {
         if (null == $this->front) {
             throw new Exception('No front image was found');
@@ -174,10 +186,10 @@ class CoverArt
     /**
      * Returns the back image
      *
-     * @throws \CoverArtArchive\Exception
-     * @return \CoverArtArchive\CoverArtImage
+     * @return CoverArtImage
+     * @throws Exception
      */
-    public function getBackImage()
+    public function getBackImage(): CoverArtImage
     {
         if (null == $this->back) {
             throw new Exception('No back image was found');
