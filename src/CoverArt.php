@@ -22,7 +22,16 @@ use InvalidArgumentException;
  */
 class CoverArt
 {
+    public const TYPE_RELEASE = 'release';
+    public const TYPE_RELEASE_GROUP = 'release-group';
+
     private const URL = 'https://coverartarchive.org';
+
+    /**
+     * Sets the MBID type
+     * @var string
+     */
+    private $type = 'release';
 
     /**
      * Stores an array of CoverArtImage objects
@@ -59,30 +68,51 @@ class CoverArt
      * Retrieves an array of images based on a
      * Music Brainz ID
      *
+     * @param string $type
      * @param string $mbid
      * @param ClientInterface $client
-     * @throws Exception|GuzzleException
+     * @throws GuzzleException
+     * @throws Exception
      */
-    public function __construct(string $mbid, ClientInterface $client)
+    public function __construct(string $type, string $mbid, ClientInterface $client)
     {
         $this->client = $client;
 
-        $this->setMBID($mbid);
-        $this->retrieveImages();
+        $this
+            ->setType($type)
+            ->setMBID($mbid)
+            ->retrieveImages();
+    }
+
+    /**
+     * @param string $type
+     * @return $this
+     * @throws Exception
+     */
+    private function setType(string $type): self {
+        if (false === in_array($type, [self::TYPE_RELEASE, self::TYPE_RELEASE_GROUP], true)) {
+            throw new Exception('Invalid type provided. Please provide `CoverArt::TYPE_RELEASE` or `CoverArt::TYPE_RELEASE_GROUP`.');
+        }
+        $this->type = $type;
+
+        return $this;
     }
 
     /**
      * Sets the MusicBrainzID
      *
      * @param string $mbid
+     * @return CoverArt
      */
-    public function setMBID(string $mbid): void
+    private function setMBID(string $mbid): self
     {
         if (!self::isValidMBID($mbid)) {
             throw new InvalidArgumentException('Invalid Music Brainz ID');
         }
 
         $this->mbid = $mbid;
+
+        return $this;
     }
 
     /**
@@ -107,7 +137,7 @@ class CoverArt
      */
     public function retrieveImages(): CoverArt
     {
-        $response = $this->call('/release/' . $this->getMBID());
+        $response = $this->call("/{$this->type}/{$this->mbid}");
 
         if (isset($response['images'])) {
             foreach ($response['images'] as $image) {
@@ -146,16 +176,6 @@ class CoverArt
         }
 
         return json_decode((string)$response->getBody(), true);
-    }
-
-    /**
-     * Returns the MBID
-     *
-     * @return string
-     */
-    public function getMBID(): string
-    {
-        return $this->mbid;
     }
 
     /**
